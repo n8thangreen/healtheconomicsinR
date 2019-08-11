@@ -1,0 +1,14 @@
+This is BibTeX, Version 0.99dThe top-level auxiliary file: healtheconomicsinR.aux
+I couldn't open style file apalike.bst
+---line 19 of file healtheconomicsinR.aux
+ : \bibstyle{apalike
+ :                  }
+I'm skipping whatever remains of this command
+I couldn't open database file book.bib.bib
+---line 50 of file healtheconomicsinR.aux
+ : \bibdata{book.bib
+ :                  ,packages.bib}
+I'm skipping whatever remains of this command
+I found no database files---while reading file healtheconomicsinR.aux
+I found no style file---while reading file healtheconomicsinR.aux
+(There were 4 error messages)
