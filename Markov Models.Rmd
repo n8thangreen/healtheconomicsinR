@@ -1,7 +1,0 @@
-# Markov Models
-
-Introduction
-
-## Standard Matrix Formulation
-
-## Simulation

@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 6 Markov Models | Introduction to HTA in R</title>
+  <meta name="description" content="This is an introduction to implementing standard health technology assessment methods in the statistical programming language R." />
+  <meta name="generator" content="bookdown 0.12 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 6 Markov Models | Introduction to HTA in R" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="This is an introduction to implementing standard health technology assessment methods in the statistical programming language R." />
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 6 Markov Models | Introduction to HTA in R" />
+  
+  <meta name="twitter:description" content="This is an introduction to implementing standard health technology assessment methods in the statistical programming language R." />
+  
+
+<meta name="author" content="Nathan Green" />
+
+
+<meta name="date" content="2019-08-12" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="HRQoL.html">
+
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">A Minimal Book Example</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Prerequisites</a></li>
+<li class="chapter" data-level="2" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>2</b> Introduction</a></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="chapter" data-level="3" data-path="decisiontrees.html"><a href="decisiontrees.html"><i class="fa fa-check"></i><b>3</b> Decision Trees</a><ul>
+<li class="chapter" data-level="3.1" data-path="decisiontrees.html"><a href="decisiontrees.html#binary-trees"><i class="fa fa-check"></i><b>3.1</b> Binary Trees</a></li>
+<li class="chapter" data-level="3.2" data-path="decisiontrees.html"><a href="decisiontrees.html#sparcity"><i class="fa fa-check"></i><b>3.2</b> Sparcity</a></li>
+<li class="chapter" data-level="3.3" data-path="decisiontrees.html"><a href="decisiontrees.html#dynamic-programming-and-bellman-equations"><i class="fa fa-check"></i><b>3.3</b> Dynamic Programming and Bellman Equations</a><ul>
+<li class="chapter" data-level="3.3.1" data-path="decisiontrees.html"><a href="decisiontrees.html#value-and-policy-iteration"><i class="fa fa-check"></i><b>3.3.1</b> Value and Policy Iteration</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="discrete-event-simulation.html"><a href="discrete-event-simulation.html"><i class="fa fa-check"></i><b>4</b> Discrete Event Simulation</a><ul>
+<li class="chapter" data-level="4.1" data-path="discrete-event-simulation.html"><a href="discrete-event-simulation.html#priority-queues-and-stacks"><i class="fa fa-check"></i><b>4.1</b> (Priority) Queues and Stacks</a><ul>
+<li class="chapter" data-level="4.1.1" data-path="discrete-event-simulation.html"><a href="discrete-event-simulation.html#push-and-pop"><i class="fa fa-check"></i><b>4.1.1</b> Push and Pop</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2" data-path="discrete-event-simulation.html"><a href="discrete-event-simulation.html#scheduler"><i class="fa fa-check"></i><b>4.2</b> Scheduler</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="HRQoL.html"><a href="HRQoL.html"><i class="fa fa-check"></i><b>5</b> Health-realted Quality of Life</a><ul>
+<li class="chapter" data-level="5.1" data-path="HRQoL.html"><a href="HRQoL.html#qalys"><i class="fa fa-check"></i><b>5.1</b> QALYs</a></li>
+<li class="chapter" data-level="5.2" data-path="HRQoL.html"><a href="HRQoL.html#dalys"><i class="fa fa-check"></i><b>5.2</b> DALYs</a></li>
+<li class="chapter" data-level="5.3" data-path="HRQoL.html"><a href="HRQoL.html#combining-utilities"><i class="fa fa-check"></i><b>5.3</b> Combining Utilities</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="markov-models.html"><a href="markov-models.html"><i class="fa fa-check"></i><b>6</b> Markov Models</a><ul>
+<li class="chapter" data-level="6.1" data-path="markov-models.html"><a href="markov-models.html#standard-matrix-formulation"><i class="fa fa-check"></i><b>6.1</b> Standard Matrix Formulation</a></li>
+<li class="chapter" data-level="6.2" data-path="markov-models.html"><a href="markov-models.html#simulation"><i class="fa fa-check"></i><b>6.2</b> Simulation</a><ul>
+<li class="chapter" data-level="6.2.1" data-path="markov-models.html"><a href="markov-models.html#references-1"><i class="fa fa-check"></i><b>6.2.1</b> References</a></li>
+</ul></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Introduction to HTA in R</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="markov-models" class="section level1">
+<h1><span class="header-section-number">Chapter 6</span> Markov Models</h1>
+<p>Introduction</p>
+<div id="standard-matrix-formulation" class="section level2">
+<h2><span class="header-section-number">6.1</span> Standard Matrix Formulation</h2>
+</div>
+<div id="simulation" class="section level2">
+<h2><span class="header-section-number">6.2</span> Simulation</h2>
+<div id="C1" class="section level4">
+<h4><span class="header-section-number">6.2.0.1</span> 1. A simple decision tree</h4>
+<p>This example is taken from <span class="citation">(<span class="citeproc-not-found" data-reference-id="Hazen2014"><strong>???</strong></span>)</span>.
+The problem is concerned with a competing risk cancer and AIDS decision tree.
+We will assume discrete time of single years.
+An individual starts in the <code>Well</code> state.
+They can transition into <code>Dead</code>, <code>Cancer &amp; AIDS</code>, <code>Cancer</code>, <code>AIDS</code> or remain in the <code>Well</code> state.</p>
+<p>Define the transition probabilities:</p>
+<ul>
+<li>Die from other causes: <span class="math inline">\(\delta_0 = 0.001182\)</span></li>
+<li>Die from recurent prostate cancer: <span class="math inline">\(\delta_c = 0.025\)</span></li>
+<li>Die from AIDS: <span class="math inline">\(\delta_a = 0.080\)</span></li>
+<li>Cancer recurs: <span class="math inline">\(\beta_c = 0.0027\)</span></li>
+<li>Develop AIDS: <span class="math inline">\(\beta_a = 0.0083\)</span></li>
+</ul>
+<p>Each state has an associated utility or benefit (quality factor in <span class="citation">(<span class="citeproc-not-found" data-reference-id="Hazen2014"><strong>???</strong></span>)</span>) accrued by spending one cycle in each state.
+Define the state utilities:</p>
+<ul>
+<li><code>Well</code>: <span class="math inline">\(R_w=\)</span> 1.0</li>
+<li><code>Cancer</code>: <span class="math inline">\(R_c=\)</span> 0.60</li>
+<li><code>AIDS</code>: <span class="math inline">\(R_a=\)</span> 0.50</li>
+<li><code>Cancer &amp; AIDS</code>: <span class="math inline">\(R_{ca}=\)</span> 0.30</li>
+<li><code>Dead</code>: <span class="math inline">\(R_d=\)</span> 0</li>
+</ul>
+<p>Note that we will not include discounting.</p>
+<br>
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 2px; padding: 5px;}
+</style>
+<div class="blue">
+<p>C1. Define a (single year) decision tree and calculate the expected quality-adjusted value.</p>
+</div>
+<p><br><br></p>
+</div>
+<div id="C2" class="section level4">
+<h4><span class="header-section-number">6.2.0.2</span> 2. Markov-cycle tree</h4>
+<p>A Markov-cycle tree was introduced by <span class="citation">(<span class="citeproc-not-found" data-reference-id="Hollenberg1984"><strong>???</strong></span>)</span> and is a representation of a Markov process in which the possible events taking place during each cycle are represented by a probability tree.
+This is one way of simplifying determining probabilities from multiple paths.</p>
+<p>The diagram for the Markov-cycle tree of the example in <span class="citation">(<span class="citeproc-not-found" data-reference-id="Hazen2014"><strong>???</strong></span>)</span> is given below (note that the order of the states is different on the left-hand side and right-hand side).</p>
+<p><img src="figs/markov_cycle_tree.png" width="75%" /></p>
+<p>The terminal state are now root or source states, meaning the process returns to the left-hand side to be repeated.</p>
+<br>
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 2px; padding: 5px;}
+</style>
+<div class="blue">
+<p>C2. Extend the model of C1 for multiple cycles and thus create a Markov-cycle tree. Calculate the mean quality-adjusted lifetime of 90.473.</p>
+</div>
+<p><br><br></p>
+</div>
+<div id="C3" class="section level4">
+<h4><span class="header-section-number">6.2.0.3</span> 3. One-cycle Markov-cycle tree</h4>
+<p>We can rearrange the Markov-cycle tree to closer resemble a Markov model by collapsing the branches into a single cycle and simply combining the probabilities.</p>
+<p>In the below figure</p>
+<ul>
+<li>The numbers above each branch are the one-cycle transition probabilities</li>
+<li>The numbers pointing at nodes and names are the mean quality-adjusted durations accrued through <span class="math inline">\(n\)</span> cycles.</li>
+<li>The numbers in brackets are the mean quality-adjusted durations at the start of the cycle.</li>
+</ul>
+<p>So for the below figure, the right-most numbers are the mean quality-adjusted durations for cycle 2, the left-most numbers are the mean quality-adjusted durations for cycle 3 and the numbers in brackets are the mean quality-adjusted durations for cycle 1.
+<span class="citation">(<span class="citeproc-not-found" data-reference-id="Hazen2014"><strong>???</strong></span>)</span> steps through this calculation in detail.</p>
+<p><img src="figs/onecycle_markovcycletree.png" width="65%" /></p>
+<br>
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 2px; padding: 5px;}
+</style>
+<div class="blue">
+<p>C3. Modify the model of C2 to create a one-cycle Markov-cycle tree. Calculate the mean quality-adjusted lifetime.</p>
+</div>
+<p><br><br></p>
+</div>
+<div id="C4" class="section level4">
+<h4><span class="header-section-number">6.2.0.4</span> 4. Discrete-time Markov model</h4>
+<p>Clearly, the Markov-cycle tree can also be represented as a discrete-time Markov model.
+The transition probabilities can be calculated by combining relevant path probabilities from the decision tree as done for the one-cycle Markov-cycle tree.
+The model is shown below (note that death is not shows for simplicity).</p>
+<p><img src="healtheconomicsinR_files/figure-html/unnamed-chunk-5-1.png" width="75%" /></p>
+<br>
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 2px; padding: 5px;}
+</style>
+<div class="blue">
+<p>C4. Create the equivalent discrete-time Markov model to the one-cycle Markov-cycle tree. Calculate cumulative proportion of patient cycles in each state and take product with health utilities for each respectively to obtain the mean quality-adjusted lifetime.</p>
+</div>
+<p><br><br></p>
+</div>
+<div id="C5" class="section level4">
+<h4><span class="header-section-number">6.2.0.5</span> 5. Roll back Markov-cycle tree</h4>
+<p>A neat strength is that we can calculate the mean quality-adjusted lifetime using the one-cycle Markov-cycle tree representation without calculating the cumulative proportion of time of patient cycles in each health state.
+This is done by rolling back using the recursive equation (<a href="https://en.wikipedia.org/wiki/Markov_decision_process#Value_iteration">value iteration</a>):</p>
+<p><span class="math display">\[
+V_n(i) = R(i) + \sum_j p_{ij} V_{n-1}(j)
+\]</span>
+where <span class="math inline">\(V_n(i)\)</span> are the values at node <span class="math inline">\(i\)</span> at step <span class="math inline">\(n\)</span>, in our case the mean quality-adjusted lifetime.</p>
+<br>
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 2px; padding: 5px;}
+</style>
+<div class="blue">
+<p>C5. Calculate the mean quality-adjusted lifetime using the one-cycle Markov-cycle tree and value iteration.</p>
+</div>
+<p><br><br></p>
+</div>
+<div id="C6" class="section level4">
+<h4><span class="header-section-number">6.2.0.6</span> 6. (BONUS CHALLENGE): Roll back stochastic tree</h4>
+<p>So far we have only considered discrete time.
+The Markov-cycle tree representation can be extended to continuous time as a <em>stochastic tree</em>
+(see <span class="citation">(<span class="citeproc-not-found" data-reference-id="Hazen2014"><strong>???</strong></span>)</span> for details).
+Probabilities are now replaced by rates.
+This change is represented by zigzag lines in the diagrams.
+This is clearly a more compact representation.</p>
+<p>We can calculate mean quality-adjusted lifetime in an analogous way to the discrete-time case by rolling back using the recursive equation:</p>
+<p><span class="math display">\[
+V(S) = \frac{R(i)}{\sum_j \lambda_j} + \sum_j p_j V(S_j)
+\]</span>
+The new model diagram is given below.</p>
+<p><img src="figs/stochastic_tree.png" width="75%" /></p>
+<p>The rates for state transitions are:</p>
+<ul>
+<li><code>Cancer</code>: <span class="math inline">\(\lambda_c = 0.03250\)</span>/year</li>
+<li><code>AIDS</code>: <span class="math inline">\(\lambda_a = 0.10\)</span>/year</li>
+<li><code>Dead from Cancer</code>: <span class="math inline">\(\mu_c = 0.3081\)</span>/year</li>
+<li><code>Dead from AIDS</code>: <span class="math inline">\(\mu_a = 0.9970\)</span>/year</li>
+<li><code>Dead other</code>: <span class="math inline">\(\mu_o = 0.014191\)</span>/year</li>
+</ul>
+<br>
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 2px; padding: 5px;}
+</style>
+<div class="blue">
+<p>C6. Create the stochastic tree model and calculate the mean quality-adjusted lifetime using value iteration.</p>
+</div>
+<p><br><br></p>
+<p> </p>
+</div>
+<div id="references-1" class="section level3">
+<h3><span class="header-section-number">6.2.1</span> References</h3>
+<p>Load supporting packages.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">library</span>(purrr)</a></code></pre></div>
+<pre><code>## 
+## Attaching package: &#39;purrr&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:heemod&#39;:
+## 
+##     modify</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">library</span>(knitr)</a></code></pre></div>
+<div id="c1.-a-simple-decision-tree" class="section level4">
+<h4><span class="header-section-number">6.2.1.1</span> C1. A simple decision tree</h4>
+<p>Define the separate monthly transition probabilities.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1">delta0 &lt;-<span class="st"> </span><span class="fl">0.001182</span></a>
+<a class="sourceLine" id="cb8-2" title="2">deltac &lt;-<span class="st"> </span><span class="fl">0.025</span></a>
+<a class="sourceLine" id="cb8-3" title="3">deltaa &lt;-<span class="st"> </span><span class="fl">0.08</span></a>
+<a class="sourceLine" id="cb8-4" title="4">betac  &lt;-<span class="st"> </span><span class="fl">0.0027</span></a>
+<a class="sourceLine" id="cb8-5" title="5">betaa  &lt;-<span class="st"> </span><span class="fl">0.0083</span></a></code></pre></div>
+<p>and the utilities of being in each state.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1">sutils &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">dead =</span> <span class="dv">0</span>, <span class="dt">CA =</span> <span class="fl">0.3</span>, <span class="dt">cancer =</span> <span class="fl">0.6</span>, <span class="dt">AIDS =</span> <span class="fl">0.5</span>, <span class="dt">well =</span> <span class="dv">1</span>)</a></code></pre></div>
+<p>Note that the order of states is <code>dead</code>, <code>cancer &amp; AIDS</code>, <code>cancer</code>, <code>AIDS</code>, <code>well</code>.</p>
+<p>Define decision trees in terms of the structure, values and probabilities.
+We’ll use the <code>tribble</code> function just because it allows us to specify a matrix by rows rather than columns.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">library</span>(tibble)</a>
+<a class="sourceLine" id="cb10-2" title="2"></a>
+<a class="sourceLine" id="cb10-3" title="3">tree_probs &lt;-<span class="st"> </span><span class="kw">list</span>()</a>
+<a class="sourceLine" id="cb10-4" title="4"></a>
+<a class="sourceLine" id="cb10-5" title="5"><span class="co"># unique state outcomes each branch</span></a>
+<a class="sourceLine" id="cb10-6" title="6">tree_probs<span class="op">$</span>well &lt;-</a>
+<a class="sourceLine" id="cb10-7" title="7"><span class="st">  </span><span class="kw">tribble</span>(<span class="op">~</span>rowname,  <span class="op">~</span>dead, <span class="op">~</span>ndead,  <span class="op">~</span>recurc, <span class="op">~</span>ncancer, <span class="op">~</span>CA,  <span class="op">~</span>cancer, <span class="op">~</span>AIDS, <span class="op">~</span>well,</a>
+<a class="sourceLine" id="cb10-8" title="8">          <span class="st">&quot;well0&quot;</span>,   delta0,<span class="dv">1</span><span class="op">-</span>delta0,<span class="ot">NA</span>,      <span class="ot">NA</span>,       <span class="ot">NA</span>,   <span class="ot">NA</span>,      <span class="ot">NA</span>,    <span class="ot">NA</span>,</a>
+<a class="sourceLine" id="cb10-9" title="9">          <span class="st">&quot;ndead&quot;</span>,   <span class="ot">NA</span>,    <span class="ot">NA</span>,      betac,   <span class="dv">1</span><span class="op">-</span>betac,  <span class="ot">NA</span>,   <span class="ot">NA</span>,      <span class="ot">NA</span>,    <span class="ot">NA</span>,</a>
+<a class="sourceLine" id="cb10-10" title="10">          <span class="st">&quot;recurc&quot;</span>,  <span class="ot">NA</span>,    <span class="ot">NA</span>,      <span class="ot">NA</span>,      <span class="ot">NA</span>,       betaa,<span class="dv">1</span><span class="op">-</span>betaa, <span class="ot">NA</span>,    <span class="ot">NA</span>,</a>
+<a class="sourceLine" id="cb10-11" title="11">          <span class="st">&quot;ncancer&quot;</span>, <span class="ot">NA</span>,    <span class="ot">NA</span>,      <span class="ot">NA</span>,      <span class="ot">NA</span>,       <span class="ot">NA</span>,   <span class="ot">NA</span>,      betaa, <span class="dv">1</span><span class="op">-</span>betaa) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb10-12" title="12"><span class="st">  </span><span class="kw">column_to_rownames</span>()</a>
+<a class="sourceLine" id="cb10-13" title="13"></a>
+<a class="sourceLine" id="cb10-14" title="14">tree_probs<span class="op">$</span>cancer &lt;-</a>
+<a class="sourceLine" id="cb10-15" title="15"><span class="st">  </span><span class="kw">tribble</span>(<span class="op">~</span>rowname, <span class="op">~</span>dead, <span class="op">~</span>ndead,  <span class="op">~</span>diec, <span class="op">~</span>survc,  <span class="op">~</span>CA,  <span class="op">~</span>cancer,</a>
+<a class="sourceLine" id="cb10-16" title="16">          <span class="st">&quot;cancer0&quot;</span>,delta0,<span class="dv">1</span><span class="op">-</span>delta0,<span class="ot">NA</span>,    <span class="ot">NA</span>,      <span class="ot">NA</span>,   <span class="ot">NA</span>,</a>
+<a class="sourceLine" id="cb10-17" title="17">          <span class="st">&quot;ndead&quot;</span>,  <span class="ot">NA</span>,    <span class="ot">NA</span>,      deltac,<span class="dv">1</span><span class="op">-</span>deltac,<span class="ot">NA</span>,   <span class="ot">NA</span>,</a>
+<a class="sourceLine" id="cb10-18" title="18">          <span class="st">&quot;survc&quot;</span>,  <span class="ot">NA</span>,    <span class="ot">NA</span>,      <span class="ot">NA</span>,    <span class="ot">NA</span>,      betaa,<span class="dv">1</span><span class="op">-</span>betaa) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb10-19" title="19"><span class="st">  </span><span class="kw">column_to_rownames</span>()</a>
+<a class="sourceLine" id="cb10-20" title="20"></a>
+<a class="sourceLine" id="cb10-21" title="21">tree_probs<span class="op">$</span>AIDS &lt;-</a>
+<a class="sourceLine" id="cb10-22" title="22"><span class="st">  </span><span class="kw">tribble</span>(<span class="op">~</span>rowname,<span class="op">~</span>dead, <span class="op">~</span>ndead,  <span class="op">~</span>diea, <span class="op">~</span>surva,  <span class="op">~</span>CA,  <span class="op">~</span>AIDS,</a>
+<a class="sourceLine" id="cb10-23" title="23">          <span class="st">&quot;AIDS0&quot;</span>, delta0,<span class="dv">1</span><span class="op">-</span>delta0,<span class="ot">NA</span>,    <span class="ot">NA</span>,      <span class="ot">NA</span>,   <span class="ot">NA</span>,</a>
+<a class="sourceLine" id="cb10-24" title="24">          <span class="st">&quot;ndead&quot;</span>, <span class="ot">NA</span>,    <span class="ot">NA</span>,      deltaa,<span class="dv">1</span><span class="op">-</span>deltaa,<span class="ot">NA</span>,   <span class="ot">NA</span>,</a>
+<a class="sourceLine" id="cb10-25" title="25">          <span class="st">&quot;surva&quot;</span>, <span class="ot">NA</span>,    <span class="ot">NA</span>,      <span class="ot">NA</span>,    <span class="ot">NA</span>,      betac,<span class="dv">1</span><span class="op">-</span>betac) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb10-26" title="26"><span class="st">  </span><span class="kw">column_to_rownames</span>()</a>
+<a class="sourceLine" id="cb10-27" title="27"></a>
+<a class="sourceLine" id="cb10-28" title="28">tree_probs<span class="op">$</span>CA &lt;-</a>
+<a class="sourceLine" id="cb10-29" title="29"><span class="st">  </span><span class="kw">tribble</span>(<span class="op">~</span>rowname,<span class="op">~</span>dead, <span class="op">~</span>ndead,  <span class="op">~</span>diec, <span class="op">~</span>survc,  <span class="op">~</span>diea, <span class="op">~</span>CA,</a>
+<a class="sourceLine" id="cb10-30" title="30">          <span class="st">&quot;CA0&quot;</span>,   delta0,<span class="dv">1</span><span class="op">-</span>delta0,<span class="ot">NA</span>,    <span class="ot">NA</span>,      <span class="ot">NA</span>,    <span class="ot">NA</span>,</a>
+<a class="sourceLine" id="cb10-31" title="31">          <span class="st">&quot;ndead&quot;</span>, <span class="ot">NA</span>,    <span class="ot">NA</span>,      deltac,<span class="dv">1</span><span class="op">-</span>deltac,<span class="ot">NA</span>,    <span class="ot">NA</span>,</a>
+<a class="sourceLine" id="cb10-32" title="32">          <span class="st">&quot;survc&quot;</span>, <span class="ot">NA</span>,    <span class="ot">NA</span>,      <span class="ot">NA</span>,    <span class="ot">NA</span>,      deltaa,<span class="dv">1</span><span class="op">-</span>deltaa) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb10-33" title="33"><span class="st">  </span><span class="kw">column_to_rownames</span>()</a>
+<a class="sourceLine" id="cb10-34" title="34"></a>
+<a class="sourceLine" id="cb10-35" title="35">tree_probs<span class="op">$</span>dead &lt;-<span class="st"> </span><span class="dv">1</span></a>
+<a class="sourceLine" id="cb10-36" title="36"></a>
+<a class="sourceLine" id="cb10-37" title="37">tree_probs</a></code></pre></div>
+<pre><code>## $well
+##             dead    ndead recurc ncancer     CA cancer   AIDS   well
+## well0   0.001182 0.998818     NA      NA     NA     NA     NA     NA
+## ndead         NA       NA 0.0027  0.9973     NA     NA     NA     NA
+## recurc        NA       NA     NA      NA 0.0083 0.9917     NA     NA
+## ncancer       NA       NA     NA      NA     NA     NA 0.0083 0.9917
+## 
+## $cancer
+##             dead    ndead  diec survc     CA cancer
+## cancer0 0.001182 0.998818    NA    NA     NA     NA
+## ndead         NA       NA 0.025 0.975     NA     NA
+## survc         NA       NA    NA    NA 0.0083 0.9917
+## 
+## $AIDS
+##           dead    ndead diea surva     CA   AIDS
+## AIDS0 0.001182 0.998818   NA    NA     NA     NA
+## ndead       NA       NA 0.08  0.92     NA     NA
+## surva       NA       NA   NA    NA 0.0027 0.9973
+## 
+## $CA
+##           dead    ndead  diec survc diea   CA
+## CA0   0.001182 0.998818    NA    NA   NA   NA
+## ndead       NA       NA 0.025 0.975   NA   NA
+## survc       NA       NA    NA    NA 0.08 0.92
+## 
+## $dead
+## [1] 1</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1">tree_vals &lt;-<span class="st"> </span><span class="kw">list</span>()</a>
+<a class="sourceLine" id="cb12-2" title="2"></a>
+<a class="sourceLine" id="cb12-3" title="3">tree_vals<span class="op">$</span>well &lt;-</a>
+<a class="sourceLine" id="cb12-4" title="4"><span class="st">  </span><span class="kw">tribble</span>(<span class="op">~</span>rowname, <span class="op">~</span>dead, <span class="op">~</span>ndead, <span class="op">~</span>cancer, <span class="op">~</span>ncancer, <span class="op">~</span>CA, <span class="op">~</span>CnotA, <span class="op">~</span>AIDS, <span class="op">~</span>well,</a>
+<a class="sourceLine" id="cb12-5" title="5">          <span class="st">&quot;well0&quot;</span>, <span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb12-6" title="6">          <span class="st">&quot;ndead&quot;</span>, <span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb12-7" title="7">          <span class="st">&quot;cancer&quot;</span>, <span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="fl">0.3</span>,<span class="fl">0.6</span>,<span class="dv">0</span>,<span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb12-8" title="8">          <span class="st">&quot;ncancer&quot;</span>, <span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="fl">0.5</span>,<span class="dv">1</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb12-9" title="9"><span class="st">  </span><span class="kw">column_to_rownames</span>()</a>
+<a class="sourceLine" id="cb12-10" title="10"></a>
+<a class="sourceLine" id="cb12-11" title="11">tree_vals<span class="op">$</span>cancer &lt;-</a>
+<a class="sourceLine" id="cb12-12" title="12"><span class="st">  </span><span class="kw">tribble</span>(<span class="op">~</span>rowname, <span class="op">~</span>dead, <span class="op">~</span>ndead, <span class="op">~</span>cancer, <span class="op">~</span>ncancer, <span class="op">~</span>CA, <span class="op">~</span>CnotA, <span class="op">~</span>AIDS, <span class="op">~</span>well,</a>
+<a class="sourceLine" id="cb12-13" title="13">          <span class="st">&quot;well&quot;</span>, <span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb12-14" title="14">          <span class="st">&quot;ndead&quot;</span>, <span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb12-15" title="15">          <span class="st">&quot;cancer&quot;</span>, <span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="fl">0.3</span>,<span class="fl">0.6</span>,<span class="dv">0</span>,<span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb12-16" title="16">          <span class="st">&quot;ncancer&quot;</span>, <span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="fl">0.5</span>,<span class="dv">1</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb12-17" title="17"><span class="st">  </span><span class="kw">column_to_rownames</span>()</a>
+<a class="sourceLine" id="cb12-18" title="18"></a>
+<a class="sourceLine" id="cb12-19" title="19">tree_vals<span class="op">$</span>AIDS &lt;-</a>
+<a class="sourceLine" id="cb12-20" title="20"><span class="st">  </span><span class="kw">tribble</span>(<span class="op">~</span>rowname, <span class="op">~</span>dead, <span class="op">~</span>ndead, <span class="op">~</span>cancer, <span class="op">~</span>ncancer, <span class="op">~</span>CA, <span class="op">~</span>CnotA, <span class="op">~</span>AIDS, <span class="op">~</span>well,</a>
+<a class="sourceLine" id="cb12-21" title="21">          <span class="st">&quot;well&quot;</span>, <span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb12-22" title="22">          <span class="st">&quot;ndead&quot;</span>, <span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb12-23" title="23">          <span class="st">&quot;cancer&quot;</span>, <span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="fl">0.3</span>,<span class="fl">0.6</span>,<span class="dv">0</span>,<span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb12-24" title="24">          <span class="st">&quot;ncancer&quot;</span>, <span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="fl">0.5</span>,<span class="dv">1</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb12-25" title="25"><span class="st">  </span><span class="kw">column_to_rownames</span>()</a>
+<a class="sourceLine" id="cb12-26" title="26"></a>
+<a class="sourceLine" id="cb12-27" title="27">tree_vals<span class="op">$</span>CA &lt;-</a>
+<a class="sourceLine" id="cb12-28" title="28"><span class="st">  </span><span class="kw">tribble</span>(<span class="op">~</span>rowname, <span class="op">~</span>dead, <span class="op">~</span>ndead, <span class="op">~</span>cancer, <span class="op">~</span>ncancer, <span class="op">~</span>CA, <span class="op">~</span>CnotA, <span class="op">~</span>AIDS, <span class="op">~</span>well,</a>
+<a class="sourceLine" id="cb12-29" title="29">          <span class="st">&quot;well&quot;</span>, <span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb12-30" title="30">          <span class="st">&quot;ndead&quot;</span>, <span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb12-31" title="31">          <span class="st">&quot;cancer&quot;</span>, <span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="fl">0.3</span>,<span class="fl">0.6</span>,<span class="dv">0</span>,<span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb12-32" title="32">          <span class="st">&quot;ncancer&quot;</span>, <span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="fl">0.5</span>,<span class="dv">1</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb12-33" title="33"><span class="st">  </span><span class="kw">column_to_rownames</span>()</a></code></pre></div>
+</div>
+<div id="c2.-extend-c1-for-multiple-cycles" class="section level4">
+<h4><span class="header-section-number">6.2.1.2</span> C2. Extend C1 for multiple cycles</h4>
+<p>Assuming a binomial tree we can forward simulate for a synthetic cohort. This is a brute force approach and is potentially time-consuming.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1">cohort &lt;-<span class="st"> </span><span class="kw">list</span>()</a>
+<a class="sourceLine" id="cb13-2" title="2">n_cohort &lt;-<span class="st"> </span><span class="dv">1000</span></a>
+<a class="sourceLine" id="cb13-3" title="3">death_states &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;diea&quot;</span>, <span class="st">&quot;diec&quot;</span>, <span class="st">&quot;dead&quot;</span>)</a>
+<a class="sourceLine" id="cb13-4" title="4"></a>
+<a class="sourceLine" id="cb13-5" title="5"><span class="cf">for</span> (i <span class="cf">in</span> <span class="kw">seq_len</span>(n_cohort)) {</a>
+<a class="sourceLine" id="cb13-6" title="6">  </a>
+<a class="sourceLine" id="cb13-7" title="7">  traj_s &lt;-<span class="st"> </span><span class="ot">NULL</span></a>
+<a class="sourceLine" id="cb13-8" title="8">  traj_u &lt;-<span class="st"> </span><span class="ot">NULL</span></a>
+<a class="sourceLine" id="cb13-9" title="9">  state_name &lt;-<span class="st"> &quot;well&quot;</span></a>
+<a class="sourceLine" id="cb13-10" title="10">  </a>
+<a class="sourceLine" id="cb13-11" title="11">  <span class="cf">while</span> (<span class="op">!</span>state_name <span class="op">%in%</span><span class="st"> </span>death_states) {</a>
+<a class="sourceLine" id="cb13-12" title="12">    </a>
+<a class="sourceLine" id="cb13-13" title="13">    p &lt;-<span class="st"> </span>tree_probs[[state_name]]</a>
+<a class="sourceLine" id="cb13-14" title="14">    binp &lt;-<span class="st"> </span>p[state_name, <span class="op">!</span><span class="kw">is.na</span>(p[state_name, ])] <span class="co">#partial match</span></a>
+<a class="sourceLine" id="cb13-15" title="15">    </a>
+<a class="sourceLine" id="cb13-16" title="16">    <span class="cf">while</span> (<span class="kw">nrow</span>(binp) <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>) {</a>
+<a class="sourceLine" id="cb13-17" title="17">      </a>
+<a class="sourceLine" id="cb13-18" title="18">      state_name &lt;-<span class="st"> </span></a>
+<a class="sourceLine" id="cb13-19" title="19"><span class="st">        </span><span class="cf">if</span> (<span class="kw">runif</span>(<span class="dv">1</span>) <span class="op">&lt;</span><span class="st"> </span>binp[<span class="dv">1</span>]) <span class="kw">names</span>(binp)[<span class="dv">1</span>] <span class="cf">else</span> <span class="kw">names</span>(binp)[<span class="dv">2</span>]</a>
+<a class="sourceLine" id="cb13-20" title="20">      </a>
+<a class="sourceLine" id="cb13-21" title="21">      binp &lt;-<span class="st"> </span>p[state_name <span class="op">==</span><span class="st"> </span><span class="kw">rownames</span>(p), <span class="op">!</span><span class="kw">is.na</span>(p[state_name, ])]</a>
+<a class="sourceLine" id="cb13-22" title="22">    }</a>
+<a class="sourceLine" id="cb13-23" title="23">    </a>
+<a class="sourceLine" id="cb13-24" title="24">    traj_s &lt;-<span class="st"> </span><span class="kw">c</span>(traj_s, state_name)</a>
+<a class="sourceLine" id="cb13-25" title="25">    traj_u &lt;-<span class="st"> </span><span class="kw">c</span>(traj_u, sutils[state_name])</a>
+<a class="sourceLine" id="cb13-26" title="26">  }</a>
+<a class="sourceLine" id="cb13-27" title="27">  </a>
+<a class="sourceLine" id="cb13-28" title="28">  cohort[[i]] &lt;-<span class="st"> </span>traj_u </a>
+<a class="sourceLine" id="cb13-29" title="29">}</a></code></pre></div>
+<p>An example trajectory</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1">cohort[[<span class="dv">1</span>]]</a></code></pre></div>
+<pre><code>## well well well well well well well well well well well well well well well 
+##  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0 
+## well well well well well well well well well well well well well well well 
+##  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0 
+## well well well well well well well well well well well well well well well 
+##  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0 
+## well well well well well well well well well well well well well well well 
+##  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0 
+## well well well well well well well well well well well well well well well 
+##  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0 
+## well well well well well well well well well well well well well well well 
+##  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0 
+## well well well well well well well well well well well well well well well 
+##  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0 
+## well well well well well well well well well well well well well well well 
+##  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0 
+## well well well well well well well well well well well well AIDS AIDS AIDS 
+##  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  0.5  0.5  0.5 
+## AIDS AIDS AIDS AIDS AIDS AIDS AIDS AIDS AIDS AIDS AIDS AIDS &lt;NA&gt; 
+##  0.5  0.5  0.5  0.5  0.5  0.5  0.5  0.5  0.5  0.5  0.5  0.5   NA</code></pre>
+<p>The mean summary statistics should be close to the true expected value.
+However, it appears to be pretty noisy and even for fairly large values (in terms of run time) it can be off by one or two.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1"><span class="kw">mean</span>(<span class="kw">map</span>(cohort, sum, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">unlist</span>())</a></code></pre></div>
+<pre><code>## [1] 90.9396</code></pre>
+</div>
+<div id="c3.-markov-cycle-tree" class="section level4">
+<h4><span class="header-section-number">6.2.1.3</span> C3. Markov-cycle tree</h4>
+<p>Given the following transition matrix</p>
+<p><span class="math display">\[
+\tiny
+\left(
+\begin{matrix}
+1 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
+(1 - \delta_0)\delta_c + (1-\delta_0)(1-\delta_c)\delta_a &amp; (1-\delta_0)(1-\delta_c(1-\delta_a) &amp; 0 &amp; 0 &amp; 0\\
+\delta_0 + (1-\delta_0)\delta_c &amp; (1-\delta_0)(1-\delta_c)\beta_a &amp; (1-\delta_0)(1-\delta_c)(1-\beta_a) &amp; 0 &amp; 0\\
+\delta_0 + (1-\delta_0)\delta_a &amp; (1-\delta_0)\beta_c(1-\delta_a) &amp; 0 &amp; (1-\delta_0)(1-\beta_c)(1-\delta_a) &amp; 0\\
+\delta_0 &amp; (1-\delta_0)\beta_c\beta_a &amp; (1-\delta_0)\beta_c(1-\beta_a) &amp; (1-\delta_0)(1-\beta_c)\beta_a &amp; (1-\delta_0)(1-\beta_c)(1-\beta_a)
+\end{matrix}
+\right)
+\]</span></p>
+<p>Then define the transition matrix object</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" title="1">p &lt;-<span class="st"> </span><span class="kw">list</span>()</a>
+<a class="sourceLine" id="cb18-2" title="2"></a>
+<a class="sourceLine" id="cb18-3" title="3">p<span class="op">$</span>dead &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb18-4" title="4"></a>
+<a class="sourceLine" id="cb18-5" title="5">p<span class="op">$</span>CA &lt;-</a>
+<a class="sourceLine" id="cb18-6" title="6"><span class="st">  </span><span class="kw">c</span>(delta0 <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span><span class="op">-</span>delta0)<span class="op">*</span>deltac <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span><span class="op">-</span>delta0)<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>deltac)<span class="op">*</span>deltaa, (<span class="dv">1</span><span class="op">-</span>delta0)<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>deltac)<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>deltaa),<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb18-7" title="7"></a>
+<a class="sourceLine" id="cb18-8" title="8">p<span class="op">$</span>cancer &lt;-</a>
+<a class="sourceLine" id="cb18-9" title="9"><span class="st">  </span><span class="kw">c</span>(delta0 <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span><span class="op">-</span>delta0)<span class="op">*</span>deltac, (<span class="dv">1</span><span class="op">-</span>delta0)<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>deltac)<span class="op">*</span>betaa, (<span class="dv">1</span><span class="op">-</span>delta0)<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>deltac)<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>betaa),<span class="dv">0</span>,<span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb18-10" title="10"></a>
+<a class="sourceLine" id="cb18-11" title="11">p<span class="op">$</span>AIDS &lt;-</a>
+<a class="sourceLine" id="cb18-12" title="12"><span class="st">  </span><span class="kw">c</span>(delta0 <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span><span class="op">-</span>delta0)<span class="op">*</span>deltaa, (<span class="dv">1</span><span class="op">-</span>delta0)<span class="op">*</span>betac<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>deltaa), <span class="dv">0</span>, (<span class="dv">1</span><span class="op">-</span>delta0)<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>betac)<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>deltaa), <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb18-13" title="13"></a>
+<a class="sourceLine" id="cb18-14" title="14">p<span class="op">$</span>well &lt;-</a>
+<a class="sourceLine" id="cb18-15" title="15"><span class="st">  </span><span class="kw">c</span>(delta0, (<span class="dv">1</span><span class="op">-</span>delta0)<span class="op">*</span>betac<span class="op">*</span>betaa, (<span class="dv">1</span><span class="op">-</span>delta0)<span class="op">*</span>betac<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>betaa), (<span class="dv">1</span><span class="op">-</span>delta0)<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>betac)<span class="op">*</span>betaa,</a>
+<a class="sourceLine" id="cb18-16" title="16">    (<span class="dv">1</span><span class="op">-</span>delta0)<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>betac)<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>betaa))</a>
+<a class="sourceLine" id="cb18-17" title="17"></a>
+<a class="sourceLine" id="cb18-18" title="18">trans &lt;-<span class="st"> </span><span class="kw">do.call</span>(rbind, p)</a></code></pre></div>
+<p>Combine the tree data all together into a single list using a function.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" title="1">create_tree &lt;-<span class="st"> </span><span class="cf">function</span>(trans, utils) {</a>
+<a class="sourceLine" id="cb19-2" title="2">  </a>
+<a class="sourceLine" id="cb19-3" title="3">  <span class="cf">if</span> (<span class="op">!</span><span class="kw">all</span>(<span class="kw">rowSums</span>(trans) <span class="op">==</span><span class="st"> </span><span class="dv">1</span>)) <span class="kw">stop</span>(<span class="st">&quot;probabilities don&#39;t sum to one&quot;</span>)</a>
+<a class="sourceLine" id="cb19-4" title="4">  <span class="cf">if</span> (<span class="kw">nrow</span>(trans) <span class="op">!=</span><span class="st"> </span><span class="kw">ncol</span>(trans)) <span class="kw">stop</span>(<span class="st">&quot;not square matrix&quot;</span>)</a>
+<a class="sourceLine" id="cb19-5" title="5">  <span class="cf">if</span> (<span class="kw">nrow</span>(trans) <span class="op">!=</span><span class="st"> </span><span class="kw">length</span>(utils)) <span class="kw">stop</span>(<span class="st">&quot;utils length doesnt match transition matrix dimensions&quot;</span>)</a>
+<a class="sourceLine" id="cb19-6" title="6">  </a>
+<a class="sourceLine" id="cb19-7" title="7">  <span class="kw">colnames</span>(trans) &lt;-<span class="st"> </span><span class="kw">rownames</span>(trans)</a>
+<a class="sourceLine" id="cb19-8" title="8">  <span class="kw">names</span>(utils) &lt;-<span class="st"> </span><span class="kw">rownames</span>(trans)</a>
+<a class="sourceLine" id="cb19-9" title="9">  </a>
+<a class="sourceLine" id="cb19-10" title="10">  <span class="kw">list</span>(<span class="dt">trans =</span> trans,</a>
+<a class="sourceLine" id="cb19-11" title="11">       <span class="dt">utils =</span> utils)</a>
+<a class="sourceLine" id="cb19-12" title="12">}</a>
+<a class="sourceLine" id="cb19-13" title="13"></a>
+<a class="sourceLine" id="cb19-14" title="14">my_tree &lt;-<span class="st"> </span><span class="kw">create_tree</span>(trans, sutils)</a></code></pre></div>
+<p>Check the input data.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" title="1"><span class="kw">str</span>(my_tree)</a></code></pre></div>
+<pre><code>## List of 2
+##  $ trans: num [1:5, 1:5] 1 0.10406 0.02615 0.08109 0.00118 ...
+##   ..- attr(*, &quot;dimnames&quot;)=List of 2
+##   .. ..$ : chr [1:5] &quot;dead&quot; &quot;CA&quot; &quot;cancer&quot; &quot;AIDS&quot; ...
+##   .. ..$ : chr [1:5] &quot;dead&quot; &quot;CA&quot; &quot;cancer&quot; &quot;AIDS&quot; ...
+##  $ utils: Named num [1:5] 0 0.3 0.6 0.5 1
+##   ..- attr(*, &quot;names&quot;)= chr [1:5] &quot;dead&quot; &quot;CA&quot; &quot;cancer&quot; &quot;AIDS&quot; ...</code></pre>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" title="1"><span class="kw">kable</span>(my_tree<span class="op">$</span>trans, <span class="dt">digits =</span> <span class="dv">3</span>)</a></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">dead</th>
+<th align="right">CA</th>
+<th align="right">cancer</th>
+<th align="right">AIDS</th>
+<th align="right">well</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>dead</td>
+<td align="right">1.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="even">
+<td>CA</td>
+<td align="right">0.104</td>
+<td align="right">0.896</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="odd">
+<td>cancer</td>
+<td align="right">0.026</td>
+<td align="right">0.008</td>
+<td align="right">0.966</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="even">
+<td>AIDS</td>
+<td align="right">0.081</td>
+<td align="right">0.002</td>
+<td align="right">0.000</td>
+<td align="right">0.916</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="odd">
+<td>well</td>
+<td align="right">0.001</td>
+<td align="right">0.000</td>
+<td align="right">0.003</td>
+<td align="right">0.008</td>
+<td align="right">0.988</td>
+</tr>
+</tbody>
+</table>
+<p>Now we’re ready to do the forward cycle.
+Basically, using the same approach as above for the separate probabilities, we simulate individuals and then take an average.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" title="1">cohort &lt;-<span class="st"> </span><span class="kw">list</span>()</a>
+<a class="sourceLine" id="cb23-2" title="2">n_cohort &lt;-<span class="st"> </span><span class="dv">1000</span></a>
+<a class="sourceLine" id="cb23-3" title="3">p &lt;-<span class="st"> </span>my_tree<span class="op">$</span>trans</a>
+<a class="sourceLine" id="cb23-4" title="4"></a>
+<a class="sourceLine" id="cb23-5" title="5"><span class="cf">for</span> (i <span class="cf">in</span> <span class="kw">seq_len</span>(n_cohort)) {</a>
+<a class="sourceLine" id="cb23-6" title="6">  </a>
+<a class="sourceLine" id="cb23-7" title="7">  traj_s &lt;-<span class="st"> </span><span class="ot">NULL</span></a>
+<a class="sourceLine" id="cb23-8" title="8">  traj_u &lt;-<span class="st"> </span><span class="ot">NULL</span></a>
+<a class="sourceLine" id="cb23-9" title="9">  state_name &lt;-<span class="st"> &quot;well&quot;</span></a>
+<a class="sourceLine" id="cb23-10" title="10">  </a>
+<a class="sourceLine" id="cb23-11" title="11">  <span class="cf">while</span> (state_name <span class="op">!=</span><span class="st"> &quot;dead&quot;</span>) {</a>
+<a class="sourceLine" id="cb23-12" title="12">    </a>
+<a class="sourceLine" id="cb23-13" title="13">    res &lt;-<span class="st"> </span><span class="kw">rmultinom</span>(<span class="dt">n =</span> <span class="dv">1</span>, <span class="dt">size =</span> <span class="dv">1</span>, <span class="dt">prob =</span> p[state_name, ])</a>
+<a class="sourceLine" id="cb23-14" title="14">    state_name &lt;-<span class="st"> </span><span class="kw">rownames</span>(res)[res[,<span class="dv">1</span>] <span class="op">==</span><span class="st"> </span><span class="dv">1</span>]</a>
+<a class="sourceLine" id="cb23-15" title="15">    traj_s &lt;-<span class="st"> </span><span class="kw">c</span>(traj_s, state_name)</a>
+<a class="sourceLine" id="cb23-16" title="16">    traj_u &lt;-<span class="st"> </span><span class="kw">c</span>(traj_u, sutils[state_name])</a>
+<a class="sourceLine" id="cb23-17" title="17">  }</a>
+<a class="sourceLine" id="cb23-18" title="18">  </a>
+<a class="sourceLine" id="cb23-19" title="19">  cohort[[i]] &lt;-<span class="st"> </span>traj_u </a>
+<a class="sourceLine" id="cb23-20" title="20">}</a></code></pre></div>
+<p>Here’s an example trajectory.</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" title="1">cohort[[<span class="dv">1</span>]]</a></code></pre></div>
+<pre><code>## well well well well well well well well well well well well well well well 
+##  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0 
+## well well well well well well well well well well well well well well well 
+##  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0 
+## well well well well well well well well well well well well well well well 
+##  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0 
+## well well well well well well well well well well well well well well well 
+##  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0 
+## well well well well well well well well well well well well well well well 
+##  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0 
+## well well well well well well well well well well well well well well well 
+##  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0 
+## well well well well well well well well well well well well well well well 
+##  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0 
+## well well well well well well well well well well well well well well well 
+##  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0 
+## well well well well well well well well well well well well well well well 
+##  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0 
+## well well well well well well well well well well well well well well well 
+##  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0 
+## well well well well well well well well well well well well well well well 
+##  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0 
+## well well well well well well well well well well well well well well well 
+##  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0 
+## well well well well well well well well well well well well well well well 
+##  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0 
+## well well well well well well well well well well well well well well well 
+##  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0  1.0 
+## well well AIDS AIDS AIDS dead 
+##  1.0  1.0  0.5  0.5  0.5  0.0</code></pre>
+<p>The expected value is</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" title="1"><span class="kw">mean</span>(<span class="kw">map</span>(cohort, sum, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">unlist</span>())</a></code></pre></div>
+<pre><code>## [1] 92.5741</code></pre>
+</div>
+<div id="c4.-regular-markov-model" class="section level4">
+<h4><span class="header-section-number">6.2.1.4</span> C4. Regular Markov model</h4>
+<p>After initialising values for the calculation, for each cycle the probability of being in each of the states is calculated using the transition matrix and the previous cycle state occupancy probabilities.
+Similarly, the utilities associated with being in each state are calculated for each cycle.</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" title="1">run_model &lt;-<span class="st"> </span><span class="cf">function</span>(tree,</a>
+<a class="sourceLine" id="cb28-2" title="2">                      probs,</a>
+<a class="sourceLine" id="cb28-3" title="3">                      <span class="dt">n_cycles =</span> <span class="dv">1000</span>) {</a>
+<a class="sourceLine" id="cb28-4" title="4">  </a>
+<a class="sourceLine" id="cb28-5" title="5">  <span class="cf">if</span> (<span class="op">!</span><span class="kw">is.matrix</span>(probs))</a>
+<a class="sourceLine" id="cb28-6" title="6">    probs &lt;-<span class="st"> </span><span class="kw">matrix</span>(probs, <span class="dt">nrow =</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb28-7" title="7">  </a>
+<a class="sourceLine" id="cb28-8" title="8">  qalys &lt;-<span class="st"> </span><span class="ot">NULL</span></a>
+<a class="sourceLine" id="cb28-9" title="9">  costs &lt;-<span class="st"> </span><span class="ot">NULL</span></a>
+<a class="sourceLine" id="cb28-10" title="10">  </a>
+<a class="sourceLine" id="cb28-11" title="11">  <span class="cf">for</span> (i <span class="cf">in</span> <span class="kw">seq_len</span>(n_cycles)) {</a>
+<a class="sourceLine" id="cb28-12" title="12">    </a>
+<a class="sourceLine" id="cb28-13" title="13">    probs &lt;-<span class="st"> </span><span class="kw">rbind</span>(probs, probs[i, ] <span class="op">%*%</span><span class="st"> </span>tree<span class="op">$</span>trans)</a>
+<a class="sourceLine" id="cb28-14" title="14">    qalys &lt;-<span class="st"> </span><span class="kw">rbind</span>(qalys, probs[i, ]<span class="op">*</span>tree<span class="op">$</span>utils)</a>
+<a class="sourceLine" id="cb28-15" title="15">  }</a>
+<a class="sourceLine" id="cb28-16" title="16">  </a>
+<a class="sourceLine" id="cb28-17" title="17">  <span class="kw">list</span>(<span class="dt">probs =</span> probs,</a>
+<a class="sourceLine" id="cb28-18" title="18">       <span class="dt">qalys =</span> qalys)</a>
+<a class="sourceLine" id="cb28-19" title="19">}</a></code></pre></div>
+<p>By summing over all cycles we obtain the total utilities for each state.
+The total sum is the expected QALYs value for an individual starting in state <code>well</code> until <code>dead</code>.</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" title="1">init_pop &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb29-2" title="2">res &lt;-<span class="st"> </span><span class="kw">run_model</span>(my_tree, init_pop)</a>
+<a class="sourceLine" id="cb29-3" title="3"><span class="kw">colSums</span>(res<span class="op">$</span>qalys)</a></code></pre></div>
+<pre><code>##       dead         CA     cancer       AIDS       well 
+##  0.0000000  0.2134372  3.8587613  4.0724888 82.3270612</code></pre>
+<p>The total expected QALYs are therefore</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" title="1"><span class="kw">sum</span>(res<span class="op">$</span>qalys)</a></code></pre></div>
+<pre><code>## [1] 90.47175</code></pre>
+</div>
+<div id="c5.-roll-back-markov-cycle-tree" class="section level4">
+<h4><span class="header-section-number">6.2.1.5</span> C5. Roll back Markov-cycle tree</h4>
+<p>Let’s write a recursive function to do the value iteration.
+Because this is more general than a simple binary tree we need to sum over the number of to-nodes at each step.
+Also, we need to limit the number of recursions since this function would run until we get a stack overflow error.
+In the original paper, Hazen (1992) gives a table for 1, 2, 3, 10, 100, 1000 cylces to show convergence.
+Here we inlude a <code>limit</code> argument which exits the function call after a certain tree depth is reached.</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" title="1">value_iteration &lt;-<span class="st"> </span><span class="cf">function</span>(n,        <span class="co"># starting node number</span></a>
+<a class="sourceLine" id="cb33-2" title="2">                            R,        <span class="co"># `reward` (utility/quality factor)</span></a>
+<a class="sourceLine" id="cb33-3" title="3">                            p,        <span class="co"># transition probabilty matrix</span></a>
+<a class="sourceLine" id="cb33-4" title="4">                            cycle,    <span class="co"># exits recursion after limit tree depth</span></a>
+<a class="sourceLine" id="cb33-5" title="5">                            <span class="dt">limit =</span> <span class="dv">100</span>) {</a>
+<a class="sourceLine" id="cb33-6" title="6">  </a>
+<a class="sourceLine" id="cb33-7" title="7">  <span class="co">## sub NAs so returns for absorbing state</span></a>
+<a class="sourceLine" id="cb33-8" title="8">  p[p <span class="op">==</span><span class="st"> </span><span class="dv">0</span>] &lt;-<span class="st"> </span><span class="ot">NA</span></a>
+<a class="sourceLine" id="cb33-9" title="9">  p[p <span class="op">==</span><span class="st"> </span><span class="dv">1</span>] &lt;-<span class="st"> </span><span class="ot">NA</span></a>
+<a class="sourceLine" id="cb33-10" title="10"></a>
+<a class="sourceLine" id="cb33-11" title="11">  to_node &lt;-<span class="st"> </span><span class="kw">which</span>(<span class="op">!</span><span class="kw">is.na</span>(p[n, ]))</a>
+<a class="sourceLine" id="cb33-12" title="12"></a>
+<a class="sourceLine" id="cb33-13" title="13">  <span class="cf">if</span> (<span class="kw">length</span>(to_node) <span class="op">==</span><span class="st"> </span><span class="dv">0</span> <span class="op">||</span><span class="st"> </span>cycle <span class="op">==</span><span class="st"> </span>limit) {</a>
+<a class="sourceLine" id="cb33-14" title="14">    <span class="kw">return</span>(R[n])</a>
+<a class="sourceLine" id="cb33-15" title="15">  }</a>
+<a class="sourceLine" id="cb33-16" title="16">  <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb33-17" title="17">    Vsum &lt;-<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb33-18" title="18">    </a>
+<a class="sourceLine" id="cb33-19" title="19">    <span class="cf">for</span> (i <span class="cf">in</span> <span class="kw">seq_along</span>(to_node)) {</a>
+<a class="sourceLine" id="cb33-20" title="20">      Vsum &lt;-<span class="st"> </span>Vsum <span class="op">+</span><span class="st"> </span>p[n, to_node[i]]<span class="op">*</span><span class="kw">value_iteration</span>(to_node[i], R, p,</a>
+<a class="sourceLine" id="cb33-21" title="21">                                                      <span class="dt">cycle =</span> cycle <span class="op">+</span><span class="st"> </span><span class="dv">1</span>, <span class="dt">limit =</span> limit)</a>
+<a class="sourceLine" id="cb33-22" title="22">    }</a>
+<a class="sourceLine" id="cb33-23" title="23">    </a>
+<a class="sourceLine" id="cb33-24" title="24">    <span class="kw">return</span>(R[n] <span class="op">+</span><span class="st"> </span>Vsum)</a>
+<a class="sourceLine" id="cb33-25" title="25">  }</a>
+<a class="sourceLine" id="cb33-26" title="26">}</a></code></pre></div>
+<p>If we run this for the cycles in Table 2 in Hazen (1992), omitting the 1000 cycle because it takes too long to run, then we get the following same values.</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" title="1"><span class="kw">map_dbl</span>(<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">10</span>,<span class="dv">100</span>),</a>
+<a class="sourceLine" id="cb34-2" title="2">        <span class="cf">function</span>(x) <span class="kw">value_iteration</span>(<span class="dt">n =</span> <span class="dv">5</span>,</a>
+<a class="sourceLine" id="cb34-3" title="3">                                    <span class="dt">R =</span> my_tree<span class="op">$</span>utils, <span class="dt">p =</span> my_tree<span class="op">$</span>trans,</a>
+<a class="sourceLine" id="cb34-4" title="4">                                    <span class="dt">cycle =</span> <span class="dv">1</span>, <span class="dt">limit =</span> x))</a></code></pre></div>
+<pre><code>## [1]  1.000000  1.993599  2.980485  9.680872 63.018813</code></pre>
+<p>The problem with this representation is that it grows exponenitally with the number of cycles.
+One way to speed things up is to do some of the calculation up-front so that we only do it once.
+We can achieve this by nesting a second function inside of the initial as follows.</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" title="1">value_iteration2 &lt;-<span class="st"> </span><span class="cf">function</span>(n,        <span class="co"># starting node number</span></a>
+<a class="sourceLine" id="cb36-2" title="2">                             R,        <span class="co"># `reward` (utility/quality factor)</span></a>
+<a class="sourceLine" id="cb36-3" title="3">                             p,        <span class="co"># transition probabilty matrix</span></a>
+<a class="sourceLine" id="cb36-4" title="4">                             cycle,    <span class="co"># exits recursion after limit tree depth</span></a>
+<a class="sourceLine" id="cb36-5" title="5">                             <span class="dt">limit =</span> <span class="dv">100</span>) {</a>
+<a class="sourceLine" id="cb36-6" title="6">  </a>
+<a class="sourceLine" id="cb36-7" title="7">  <span class="co">## sub NAs so returns for absorbing state</span></a>
+<a class="sourceLine" id="cb36-8" title="8">  p[p <span class="op">==</span><span class="st"> </span><span class="dv">0</span>] &lt;-<span class="st"> </span><span class="ot">NA</span></a>
+<a class="sourceLine" id="cb36-9" title="9">  p[p <span class="op">==</span><span class="st"> </span><span class="dv">1</span>] &lt;-<span class="st"> </span><span class="ot">NA</span></a>
+<a class="sourceLine" id="cb36-10" title="10"></a>
+<a class="sourceLine" id="cb36-11" title="11">  to_node &lt;-<span class="st"> </span><span class="kw">map</span>(<span class="kw">seq</span>(<span class="kw">nrow</span>(p)), <span class="cf">function</span>(i){ <span class="kw">which</span>(<span class="op">!</span><span class="kw">is.na</span>(p[i,])) } )</a>
+<a class="sourceLine" id="cb36-12" title="12"> </a>
+<a class="sourceLine" id="cb36-13" title="13">  v_iter &lt;-<span class="st"> </span><span class="cf">function</span>(n, cycle) {</a>
+<a class="sourceLine" id="cb36-14" title="14"></a>
+<a class="sourceLine" id="cb36-15" title="15">    <span class="cf">if</span> (<span class="kw">length</span>(to_node) <span class="op">==</span><span class="st"> </span><span class="dv">0</span> <span class="op">||</span><span class="st"> </span>cycle <span class="op">==</span><span class="st"> </span>limit) {</a>
+<a class="sourceLine" id="cb36-16" title="16">      <span class="kw">return</span>(R[n])</a>
+<a class="sourceLine" id="cb36-17" title="17">    }</a>
+<a class="sourceLine" id="cb36-18" title="18">    <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb36-19" title="19">      Vsum &lt;-<span class="st"> </span><span class="dv">0</span>   </a>
+<a class="sourceLine" id="cb36-20" title="20">      <span class="cf">for</span> (i <span class="cf">in</span> <span class="kw">seq_along</span>(to_node[[n]])) {</a>
+<a class="sourceLine" id="cb36-21" title="21">        Vsum &lt;-<span class="st"> </span>Vsum <span class="op">+</span><span class="st"> </span>p[n, to_node[[n]][i]]<span class="op">*</span><span class="kw">v_iter</span>(to_node[[n]][i],<span class="dt">cycle =</span> cycle <span class="op">+</span><span class="st"> </span><span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb36-22" title="22">      }</a>
+<a class="sourceLine" id="cb36-23" title="23">      <span class="kw">return</span>(R[n] <span class="op">+</span><span class="st"> </span>Vsum)</a>
+<a class="sourceLine" id="cb36-24" title="24">    }</a>
+<a class="sourceLine" id="cb36-25" title="25">  }</a>
+<a class="sourceLine" id="cb36-26" title="26">  </a>
+<a class="sourceLine" id="cb36-27" title="27">  <span class="kw">return</span>(<span class="kw">v_iter</span>(n, cycle))</a>
+<a class="sourceLine" id="cb36-28" title="28">}</a></code></pre></div>
+<p>Although we still have the original main problem this does appreciably improve run time.</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" title="1">microbenchmark<span class="op">::</span><span class="kw">microbenchmark</span>(</a>
+<a class="sourceLine" id="cb37-2" title="2">  <span class="kw">value_iteration</span>(<span class="dt">n =</span> <span class="dv">5</span>,</a>
+<a class="sourceLine" id="cb37-3" title="3">                  <span class="dt">R =</span> my_tree<span class="op">$</span>utils,</a>
+<a class="sourceLine" id="cb37-4" title="4">                  <span class="dt">p =</span> my_tree<span class="op">$</span>trans,</a>
+<a class="sourceLine" id="cb37-5" title="5">                  <span class="dt">cycle =</span> <span class="dv">1</span>, <span class="dt">limit =</span> <span class="dv">200</span>),</a>
+<a class="sourceLine" id="cb37-6" title="6">  <span class="kw">value_iteration2</span>(<span class="dt">n =</span> <span class="dv">5</span>,</a>
+<a class="sourceLine" id="cb37-7" title="7">                   <span class="dt">R =</span> my_tree<span class="op">$</span>utils,</a>
+<a class="sourceLine" id="cb37-8" title="8">                   <span class="dt">p =</span> my_tree<span class="op">$</span>trans,</a>
+<a class="sourceLine" id="cb37-9" title="9">                   <span class="dt">cycle =</span> <span class="dv">1</span>, <span class="dt">limit =</span> <span class="dv">200</span>), <span class="dt">times =</span> <span class="dv">1</span>)</a></code></pre></div>
+<pre><code>## Unit: seconds
+##                                                                                        expr
+##   value_iteration(n = 5, R = my_tree$utils, p = my_tree$trans,      cycle = 1, limit = 200)
+##  value_iteration2(n = 5, R = my_tree$utils, p = my_tree$trans,      cycle = 1, limit = 200)
+##       min       lq     mean   median       uq      max neval
+##  45.97520 45.97520 45.97520 45.97520 45.97520 45.97520     1
+##  18.62193 18.62193 18.62193 18.62193 18.62193 18.62193     1</code></pre>
+
+<div id="refs" class="references">
+<div>
+<p>Xie, Yihui. 2015. <em>Dynamic Documents with R and Knitr</em>. 2nd ed. Boca Raton, Florida: Chapman; Hall/CRC. <a href="http://yihui.name/knitr/">http://yihui.name/knitr/</a>.</p>
+</div>
+<div>
+<p>———. 2019. <em>Bookdown: Authoring Books and Technical Documents with R Markdown</em>. <a href="https://CRAN.R-project.org/package=bookdown">https://CRAN.R-project.org/package=bookdown</a>.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="HRQoL.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"download": ["healtheconomicsinR.pdf", "healtheconomicsinR.epub"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(src))
+      src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
