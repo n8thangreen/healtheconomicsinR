@@ -1,1 +1,11 @@
+# Decision Trees
 
+Introduction
+
+## Binary Trees
+
+## Sparcity
+
+## Dynamic Programming and Bellman Equations
+
+### Value and Policy Iteration
